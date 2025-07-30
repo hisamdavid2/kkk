@@ -1,0 +1,830 @@
+/* CSS Variables for Color Scheme */
+:root {
+  --primary-green: #50DAB0;
+  --primary-purple: #A44DC4;
+  --primary-black: #000000;
+  --secondary-pink: #CF0072;
+  --secondary-yellow: #E4D700;
+  --secondary-blue: #5EB6E4;
+  --secondary-lime: #69BE28;
+  --secondary-teal: #009B74;
+  --secondary-plum: #663366;
+  --text-black: #000;
+  --text-white: #fff;
+}
+
+/* Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--primary-black);
+  color: var(--text-white);
+  font-family: 'Arial', sans-serif;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25%, 75% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+}
+
+@keyframes popCircle {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes rotateClockwise {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translate(-50%, -40%);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
+}
+
+/* Utility Classes */
+.fade-out {
+  animation: fadeOut 2s forwards;
+}
+
+.shake {
+  animation: shake 0.5s;
+}
+
+/* Container */
+.container {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-purple) 50%, var(--primary-green) 100%);
+  overflow: hidden;
+}
+
+/* Logo */
+.logo-container {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+}
+
+/* Language Page */
+.language-page {
+  display: none;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  background: var(--text-white);
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  padding: 30px;
+  text-align: center;
+}
+
+.language-page.fade-in {
+  opacity: 1;
+}
+
+.language-page h3 {
+  color: var(--text-black);
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.language-options {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.language-btn {
+  padding: 12px 20px;
+  border: 2px solid var(--primary-green);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-black);
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.language-btn:hover {
+  background: var(--primary-green);
+  color: var(--text-white);
+}
+
+.language-btn:active {
+  transform: scale(0.95);
+  opacity: 0.9;
+}
+
+.language-btn:nth-child(1):hover {
+  background: var(--secondary-blue);
+}
+
+.language-btn:nth-child(2):hover {
+  background: var(--primary-purple);
+}
+
+.language-btn:nth-child(3):hover {
+  background: var(--secondary-lime);
+}
+
+/* Login Page */
+.login-page {
+  display: none;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 350px;
+  background: var(--text-white);
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  padding: 30px;
+}
+
+.login-page.fade-in {
+  opacity: 1;
+  animation: slideInUp 0.8s ease-out;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.login-form input[type="email"] {
+  padding: 15px 20px;
+  border: 2px solid rgba(80, 218, 176, 0.3);
+  background: rgba(80, 218, 176, 0.05);
+  border-radius: 12px;
+  font-size: 16px;
+  color: var(--text-black);
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.login-form input[type="email"]::placeholder {
+  color: rgba(0, 0, 0, 0.6);
+  transition: all 0.3s ease;
+}
+
+.login-form input[type="email"]:focus {
+  border-color: var(--primary-green);
+  background: rgba(80, 218, 176, 0.1);
+  box-shadow: 0 0 20px rgba(80, 218, 176, 0.2);
+  transform: translateY(-2px);
+}
+
+.login-form button {
+  padding: 15px 30px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-teal) 100%);
+  color: var(--text-white);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(80, 218, 176, 0.3);
+}
+
+.login-form button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.login-form button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(80, 218, 176, 0.4);
+}
+
+.login-form button:hover::before {
+  left: 100%;
+}
+
+.login-form button:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(80, 218, 176, 0.3);
+}
+
+/* Main Container */
+.main-container {
+  display: none;
+  opacity: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-width: 800px;
+  height: 70vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-green) #f1f1f1;
+  background: var(--text-white);
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  transition: opacity 1s ease-in-out;
+  padding: 30px;
+  z-index: 5;
+}
+
+.main-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.main-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.main-container::-webkit-scrollbar-thumb {
+  background: var(--primary-green);
+  border-radius: 10px;
+}
+
+.main-container::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-teal);
+}
+
+.main-container.show {
+  display: block;
+  opacity: 1;
+}
+
+/* Content Section */
+.content-section {
+  color: var(--text-black);
+  margin: 20px auto;
+  max-width: 600px;
+  text-align: center;
+  padding: 0 10px;
+}
+
+.content-section h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+  color: var(--primary-green);
+}
+
+.content-section h3,
+.content-section p,
+.content-section ul,
+.content-section li,
+.content-section table,
+.content-section td,
+.content-section th {
+  color: var(--text-black);
+}
+
+.content-section p {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* Question Section */
+#question-section {
+  margin: 20px auto;
+  max-width: 600px;
+  text-align: center;
+}
+
+#question-section h3,
+#question-section p {
+  color: var(--text-black);
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.option {
+  background: rgba(164, 77, 196, 0.2);
+  color: var(--text-black);
+  border: 2px solid var(--primary-purple);
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.option:hover {
+  background: var(--primary-purple);
+  color: var(--text-white);
+}
+
+.option.correct {
+  border: 2px solid var(--secondary-lime);
+  background: rgba(105, 190, 40, 0.3);
+}
+
+/* Password Tester */
+#password-tester {
+  margin: 20px auto;
+  max-width: 600px;
+}
+
+#password-tester input {
+  flex: 1;
+  padding: 10px 5px;
+  border: none;
+  border-bottom: 2px solid #555;
+  background: transparent;
+  font-size: 16px;
+  color: var(--text-black);
+}
+
+#password-tester input:focus {
+  outline: none;
+  border-bottom-color: var(--text-white);
+}
+
+#password-tester p {
+  font-size: 16px;
+  color: var(--text-black);
+  margin-top: 10px;
+}
+
+.password-input-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+}
+
+/* Buttons */
+#submit-password,
+#next-module-btn {
+  background: transparent;
+  color: var(--text-black);
+  border: 2px solid var(--primary-green);
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+#next-module-btn {
+  margin: 10px auto;
+  display: block;
+}
+
+#submit-password:hover,
+#next-module-btn:hover {
+  background: var(--primary-green);
+  color: var(--text-white);
+}
+
+#submit-password:active,
+#next-module-btn:active {
+  transform: scale(0.95);
+  opacity: 0.9;
+}
+
+/* Module Transitions */
+#module2 {
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+}
+
+#module2.fade-in {
+  opacity: 1;
+}
+
+#module1.fade-out {
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+}
+
+/* WiFi Game */
+#wifi-game h2,
+#wifi-game p {
+  color: var(--text-black);
+}
+
+.wifi-item {
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  will-change: transform, opacity;
+  touch-action: none;
+  background: var(--text-white) !important;
+  border: 2px solid var(--primary-purple) !important;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  cursor: grab;
+  position: relative;
+  padding: 10px 15px;
+  margin: 5px 0;
+}
+
+.wifi-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  background: var(--primary-purple) !important;
+}
+
+.wifi-item:hover .wifi-text,
+.wifi-item:hover .wifi-text strong,
+.wifi-item:hover .wifi-text small {
+  color: var(--text-white);
+}
+
+.wifi-item.dragging {
+  transform: scale(1.05);
+  opacity: 0.9;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  cursor: grabbing;
+  z-index: 1000;
+  background: var(--primary-purple) !important;
+  border-color: var(--primary-purple) !important;
+}
+
+.wifi-item.dragging .wifi-text,
+.wifi-item.dragging .wifi-text strong,
+.wifi-item.dragging .wifi-text small {
+  color: var(--text-white);
+}
+
+.wifi-item.dragged-out {
+  opacity: 0;
+  transform: translateY(-20px) scale(0.95);
+  transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+.wifi-item .wifi-text,
+.wifi-item .wifi-text strong,
+.wifi-item .wifi-text small {
+  color: var(--text-black);
+}
+
+.wifi-item .wifi-text strong {
+  font-weight: 700;
+}
+
+.wifi-item .wifi-text small {
+  font-weight: 500;
+}
+
+.wifi-item.drag-over {
+  border-color: var(--secondary-lime) !important;
+  background: rgba(105, 190, 40, 0.3) !important;
+}
+
+/* RTL/LTR Support */
+[dir="ltr"] .content-section,
+[dir="ltr"] .content-section ul,
+[dir="ltr"] .content-section li,
+[dir="ltr"] #question-section,
+[dir="ltr"] .options,
+[dir="ltr"] #password-tester,
+[dir="ltr"] .login-form {
+  text-align: left;
+}
+
+[dir="ltr"] .content-section ul {
+  padding-left: 20px;
+  padding-right: 0;
+}
+
+[dir="rtl"] .content-section,
+[dir="rtl"] .content-section ul,
+[dir="rtl"] .content-section li,
+[dir="rtl"] #question-section,
+[dir="rtl"] .options,
+[dir="rtl"] #password-tester,
+[dir="rtl"] .login-form {
+  text-align: right;
+}
+
+[dir="rtl"] .content-section ul {
+  padding-right: 20px;
+  padding-left: 0;
+}
+
+[dir="rtl"] .option {
+  text-align: center;
+}
+
+[dir="rtl"] .password-input-group {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .language-options {
+  text-align: center;
+}
+
+/* Keep file test and wifi game LTR even in RTL languages */
+[dir="rtl"] #spot-malware,
+[dir="rtl"] #file-container,
+[dir="rtl"] #zip-contents,
+[dir="rtl"] #wifi-list {
+  direction: ltr;
+  text-align: left;
+}
+
+[dir="rtl"] #spot-malware h3,
+[dir="rtl"] #spot-malware p,
+[dir="rtl"] #zip-contents h4 {
+  text-align: right;
+}
+
+[dir="rtl"] #wifi-game {
+  direction: ltr;
+  text-align: center;
+}
+
+[dir="rtl"] #wifi-game h2,
+[dir="rtl"] #wifi-game p {
+  text-align: center;
+}
+
+[dir="rtl"] .wifi-item .wifi-text {
+  text-align: left;
+  direction: ltr;
+}
+.login-page::after {
+  display: none;
+}
+
+.container::before {
+  display: none;
+}
+
+.container::after {
+  display: none;
+}
+
+/* Remove floating particles animation */
+.login-page::after {
+  display: none;
+}
+
+.container::before {
+  display: none;
+}
+
+.container::after {
+  display: none;
+}
+
+/* Wi-Fi game specific styling */
+#wifi-game h2 {
+  color: #000;
+}
+
+#wifi-game p {
+  color: #000;
+}
+
+.wifi-item {
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  will-change: transform, opacity;
+  touch-action: none;
+  background: #fff !important;
+  border: 2px solid var(--primary-purple) !important;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  cursor: grab;
+  position: relative;
+  padding: 10px 15px;
+  margin: 5px 0;
+}
+
+.wifi-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  background: var(--primary-purple) !important;
+}
+
+.wifi-item:hover .wifi-text {
+  color: #fff;
+}
+
+.wifi-item:hover .wifi-text strong {
+  color: #fff;
+}
+
+.wifi-item:hover .wifi-text small {
+  color: #fff;
+}
+
+.wifi-item.dragging {
+  transform: scale(1.05);
+  opacity: 0.9;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  cursor: grabbing;
+  z-index: 1000;
+  background: var(--primary-purple) !important;
+  border-color: var(--primary-purple) !important;
+}
+
+.wifi-item.dragging .wifi-text {
+  color: #fff;
+}
+
+.wifi-item.dragging .wifi-text strong {
+  color: #fff;
+}
+
+.wifi-item.dragging .wifi-text small {
+  color: #fff;
+}
+
+.wifi-item.dragged-out {
+  opacity: 0;
+  transform: translateY(-20px) scale(0.95);
+  transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+.wifi-item .wifi-text {
+  color: #000;
+}
+
+.wifi-item .wifi-text strong {
+  color: #000;
+  font-weight: 700;
+}
+
+.wifi-item .wifi-text small {
+  color: #000;
+  font-weight: 500;
+}
+
+/* Drop zone styling like choices */
+.wifi-item.drag-over {
+  border-color: var(--secondary-lime) !important;
+  background: rgba(105, 190, 40, 0.3) !important;
+  border-style: solid;
+}
+
+/* Ensure English text flows left to right */
+[dir="ltr"] .content-section {
+  text-align: left;
+}
+
+[dir="ltr"] .content-section ul {
+  text-align: left;
+  padding-left: 20px;
+  padding-right: 0;
+}
+
+[dir="ltr"] .content-section li {
+  text-align: left;
+}
+
+[dir="ltr"] #question-section {
+  text-align: left;
+}
+
+[dir="ltr"] .options {
+  text-align: left;
+}
+
+[dir="ltr"] #password-tester {
+  text-align: left;
+}
+
+[dir="ltr"] .login-form {
+  text-align: left;
+}
+
+/* RTL Support for Arabic and Kurdish */
+[dir="rtl"] .content-section {
+  text-align: right;
+}
+
+[dir="rtl"] .content-section ul {
+  text-align: right;
+  padding-right: 20px;
+  padding-left: 0;
+}
+
+[dir="rtl"] .content-section li {
+  text-align: right;
+}
+
+[dir="rtl"] #question-section {
+  text-align: right;
+}
+
+[dir="rtl"] .options {
+  text-align: right;
+}
+
+[dir="rtl"] .option {
+  text-align: center;
+}
+
+[dir="rtl"] .password-input-group {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] #password-tester {
+  text-align: right;
+}
+
+/* Keep file test and wifi game LTR even in RTL languages */
+[dir="rtl"] #spot-malware {
+  direction: ltr;
+  text-align: left;
+}
+
+[dir="rtl"] #spot-malware h3 {
+  text-align: right;
+}
+
+[dir="rtl"] #spot-malware p {
+  text-align: right;
+}
+
+[dir="rtl"] #file-container {
+  direction: ltr;
+}
+
+[dir="rtl"] #zip-contents {
+  direction: ltr;
+  text-align: left;
+}
+
+[dir="rtl"] #zip-contents h4 {
+  text-align: right;
+}
+
+[dir="rtl"] #wifi-game {
+  direction: ltr;
+  text-align: center;
+}
+
+[dir="rtl"] #wifi-game h2,
+[dir="rtl"] #wifi-game p {
+  text-align: center;
+}
+
+[dir="rtl"] #wifi-list {
+  direction: ltr;
+}
+
+[dir="rtl"] .wifi-item .wifi-text {
+  text-align: left;
+  direction: ltr;
+}
+
+[dir="rtl"] .login-form {
+  text-align: right;
+}
+
+[dir="rtl"] .language-options {
+  text-align: center;
+}
+
+
