@@ -1,9 +1,9 @@
 document.addEventListener("DOMContentLoaded", function() {
-    // Initialize language
+    // Initialize with saved language or default to English
     const savedLanguage = localStorage.getItem('selectedLanguage') || 'en';
     switchLanguage(savedLanguage);
 
-    // Show language page
+    // Show language selection page after 1 second
     setTimeout(() => {
         const languagePage = document.getElementById("language-page");
         if (languagePage) {
@@ -13,12 +13,13 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }, 1000);
 
-    // Language selection handlers
+    // Language selection event handlers
     document.querySelectorAll(".language-btn").forEach(btn => {
         btn.addEventListener("click", function() {
             const selectedLang = this.getAttribute("data-lang");
             switchLanguage(selectedLang);
             
+            // Transition from language page to login page
             const languagePage = document.getElementById("language-page");
             languagePage.classList.remove("fade-in");
             languagePage.style.opacity = "0";
@@ -35,22 +36,24 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-    // Email validation and login
+    // Email validation and login handler
     const nextBtn = document.getElementById("next-btn");
     if (nextBtn) {
         nextBtn.addEventListener("click", function(e) {
             e.preventDefault();
             const emailInput = document.getElementById("email-input");
-            const emailValue = emailInput ? emailInput.value : "";
+            const emailValue = emailInput ? emailInput.value.trim() : "";
             
+            // Validate Zain email
             if (!/@.*zain/i.test(emailValue)) { 
                 alert("Please enter a valid Zain email address.");
                 return;
             }
             
+            // Store email
             localStorage.setItem("userEmail", emailValue);
             
-            // Save email via API if token exists
+            // Send to server if CSRF token exists
             const token = document.querySelector('meta[name="csrf-token"]');
             if (token) {
                 fetch('/baseLineTest/saveMail', {
@@ -62,9 +65,9 @@ document.addEventListener("DOMContentLoaded", function() {
                     },
                     body: JSON.stringify({
                         value: emailValue,
-                        key: "email",
+                        key: "email"
                     })
-                });
+                }).catch(error => console.log('API call failed:', error));
             }
 
             // Transition to main content
@@ -90,7 +93,7 @@ document.addEventListener("DOMContentLoaded", function() {
         
         elements.forEach(element => {
             const key = element.getAttribute('data-translate');
-            if (translations[langCode] && translations[langCode][key]) {
+            if (translations && translations[langCode] && translations[langCode][key]) {
                 if (element.tagName === 'INPUT') {
                     element.placeholder = translations[langCode][key];
                 } else {
@@ -99,7 +102,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
 
-        // Set document direction
+        // Set document direction and font
         if (langCode === 'ar' || langCode === 'ku') {
             document.dir = 'rtl';
             document.documentElement.setAttribute('dir', 'rtl');
@@ -113,9 +116,10 @@ document.addEventListener("DOMContentLoaded", function() {
         localStorage.setItem('selectedLanguage', langCode);
     }
 
-    // Question section handler
+    // Question section - Module 1
     document.querySelectorAll("#question-section .option").forEach(btn => {
         btn.addEventListener("click", function() {
+            // Disable all options
             document.querySelectorAll("#question-section .option").forEach(b => b.disabled = true);
             
             if (this.getAttribute("data-correct") === "true") {
@@ -128,134 +132,54 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             }
             
-            // Auto-transition to module2
+            // Auto-transition to module 2
             setTimeout(() => {
                 const module1 = document.getElementById("module1");
                 if (module1) {
                     module1.classList.add("fade-out");
                     setTimeout(() => {
                         module1.remove();
-                        const module2 = document.getElementById("module2");
-                        if (module2) {
-                            module2.style.display = "block";
-                            void module2.offsetWidth;
-                            module2.classList.add("fade-in");
-                        }
+                        showModule("module2");
                     }, 1000);
                 }
             }, 1500);
         });
     });
 
-    // Password strength tester
+    // Password tester - Module 2
     const submitPasswordBtn = document.getElementById("submit-password");
     if (submitPasswordBtn) {
         submitPasswordBtn.addEventListener("click", function(e) {
             e.preventDefault();
             
-            // Clear existing elements
-            if (window.currentPasswordInterval) {
-                clearInterval(window.currentPasswordInterval);
-                window.currentPasswordInterval = null;
-            }
-            
-            const oldMsg = document.getElementById("password-message");
-            const oldBrute = document.getElementById('brute-visual');
-            if (oldMsg) oldMsg.remove();
-            if (oldBrute) oldBrute.remove();
+            // Clear previous results
+            clearPasswordInterval();
+            removeElements(["password-message", "brute-visual"]);
 
             const password = document.getElementById("password-input").value;
             const currentLang = localStorage.getItem('selectedLanguage') || 'en';
             
             // Create brute force visual
-            const bruteContainer = document.createElement('div');
-            bruteContainer.id = 'brute-visual';
-            bruteContainer.style.cssText = 'font-family: monospace; font-size: 24px; text-align: center; margin: 10px auto 0;';
-            document.getElementById("password-tester").appendChild(bruteContainer);
-            
+            const bruteContainer = createBruteContainer();
             const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
-            const isStrong = password.length >= 10 && /[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password);
+            const isStrong = isPasswordStrong(password);
             
             if (!isStrong) {
-                // Weak password - reveal characters gradually
-                const revealed = Array(password.length).fill(false);
-                window.currentPasswordInterval = setInterval(() => {
-                    const notRevealed = revealed.map((r, i) => r ? null : i).filter(i => i !== null);
-                    if (notRevealed.length > 0) {
-                        const randIndex = notRevealed[Math.floor(Math.random() * notRevealed.length)];
-                        revealed[randIndex] = true;
-                    }
-                    
-                    let displayStr = "";
-                    for (let i = 0; i < password.length; i++) {
-                        displayStr += revealed[i] ? password[i] : chars[Math.floor(Math.random() * chars.length)];
-                    }
-                    bruteContainer.textContent = displayStr;
-                    
-                    if (revealed.every(v => v)) {
-                        clearInterval(window.currentPasswordInterval);
-                        window.currentPasswordInterval = null;
-                        
-                        setTimeout(() => {
-                            const missing = [];
-                            if (password.length < 10) missing.push(translations[currentLang].needsCharacters);
-                            if (!/[0-9]/.test(password)) missing.push(translations[currentLang].needsNumber);
-                            if (!/[^A-Za-z0-9]/.test(password)) missing.push(translations[currentLang].needsSymbol);
-                            
-                            const messageEl = document.createElement("div");
-                            messageEl.id = "password-message";
-                            messageEl.style.cssText = `margin-top: 10px; font-size: 20px; text-align: ${(currentLang === 'ar' || currentLang === 'ku') ? 'right' : 'left'};`;
-                            messageEl.textContent = translations[currentLang].passwordWeak + missing.join(", ") + "!";
-                            document.getElementById("password-tester").appendChild(messageEl);
-                        }, 500);
-                    }
-                }, 100);
+                handleWeakPassword(password, chars, bruteContainer, currentLang);
             } else {
-                // Strong password - show random characters then success
-                window.currentPasswordInterval = setInterval(() => {
-                    let displayStr = "";
-                    for (let i = 0; i < password.length; i++) {
-                        displayStr += chars[Math.floor(Math.random() * chars.length)];
-                    }
-                    bruteContainer.textContent = displayStr;
-                }, 50);
-                
-                setTimeout(() => {
-                    clearInterval(window.currentPasswordInterval);
-                    window.currentPasswordInterval = null;
-                    
-                    const messageEl = document.createElement("div");
-                    messageEl.id = "password-message";
-                    messageEl.style.cssText = `margin-top: 10px; font-size: 20px; text-align: ${(currentLang === 'ar' || currentLang === 'ku') ? 'right' : 'left'};`;
-                    messageEl.textContent = translations[currentLang].passwordStrong;
-                    document.getElementById("password-tester").appendChild(messageEl);
-                    
-                    // Auto-transition to module3
-                    setTimeout(() => {
-                        const module2 = document.getElementById("module2");
-                        if (module2) {
-                            module2.classList.add("fade-out");
-                            setTimeout(() => {
-                                module2.remove();
-                                const module3 = document.getElementById("module3");
-                                if (module3) {
-                                    module3.style.display = "block";
-                                    void module3.offsetWidth;
-                                    module3.classList.add("fade-in");
-                                }
-                            }, 1000);
-                        }
-                    }, 2000);
-                }, 1000);
+                handleStrongPassword(password, chars, bruteContainer, currentLang);
             }
         });
     }
 
-    // Malware detection game
+    // Malware detection game - Module 3
     const zipFile = document.getElementById("zip-file");
     if (zipFile) {
         zipFile.addEventListener("click", () => {
-            document.getElementById("zip-contents").style.display = "block";
+            const zipContents = document.getElementById("zip-contents");
+            if (zipContents) {
+                zipContents.style.display = "block";
+            }
         });
     }
 
@@ -268,36 +192,157 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-    // Zip file contents
+    // Zip file malware detection
     document.querySelectorAll(".zip-file-item").forEach(item => {
         item.addEventListener("click", function() {
             if (this.getAttribute("data-type") === "malware") {
                 alert("Correct! safe.exe is infected!");
-                
-                const module3 = document.getElementById("module3");
-                module3.classList.add("fade-out");
-                setTimeout(() => {
-                    module3.remove();
-                    const module4 = document.getElementById("module4");
-                    if (module4) {
-                        module4.style.display = "block";
-                        void module4.offsetWidth;
-                        module4.classList.add("fade-in");
-                    }
-                }, 1000);
+                transitionToModule("module3", "module4");
             } else {
                 alert("This file is safe. Try again!");
             }
         });
     });
     
-    // WiFi ordering game
-    const wifiList = document.getElementById("wifi-list");
-    let draggedItem = null;
+    // WiFi ordering game - Module 4
+    initializeWiFiGame();
 
-    if (wifiList) {
-        // Initialize drag and drop for WiFi items
+    // Finish button
+    const finishBtn = document.getElementById("next-module-btn");
+    if (finishBtn) {
+        finishBtn.addEventListener("click", function(e) {
+            e.preventDefault();
+            
+            const wifiList = document.getElementById("wifi-list");
+            if (!wifiList) return;
+            
+            const items = Array.from(wifiList.querySelectorAll(".wifi-item"));
+            const currentOrder = items.map(item => parseInt(item.getAttribute("data-security")));
+            const correctOrder = [4, 3, 2, 1];
+            const isCorrect = currentOrder.every((val, index) => val === correctOrder[index]);
+            
+            if (isCorrect) {
+                showCongratulations();
+            } else {
+                showIncorrectFeedback(finishBtn);
+            }
+        });
+    }
+
+    // Helper Functions
+    function showModule(moduleId) {
+        const module = document.getElementById(moduleId);
+        if (module) {
+            module.style.display = "block";
+            void module.offsetWidth;
+            module.classList.add("fade-in");
+        }
+    }
+
+    function transitionToModule(fromModuleId, toModuleId) {
+        const fromModule = document.getElementById(fromModuleId);
+        if (fromModule) {
+            fromModule.classList.add("fade-out");
+            setTimeout(() => {
+                fromModule.remove();
+                showModule(toModuleId);
+            }, 1000);
+        }
+    }
+
+    function clearPasswordInterval() {
+        if (window.currentPasswordInterval) {
+            clearInterval(window.currentPasswordInterval);
+            window.currentPasswordInterval = null;
+        }
+    }
+
+    function removeElements(ids) {
+        ids.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) element.remove();
+        });
+    }
+
+    function createBruteContainer() {
+        const container = document.createElement('div');
+        container.id = 'brute-visual';
+        container.style.cssText = 'font-family: monospace; font-size: 24px; text-align: center; margin: 10px auto 0;';
+        document.getElementById("password-tester").appendChild(container);
+        return container;
+    }
+
+    function isPasswordStrong(password) {
+        return password.length >= 10 && /[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password);
+    }
+
+    function handleWeakPassword(password, chars, container, lang) {
+        const revealed = Array(password.length).fill(false);
+        
+        window.currentPasswordInterval = setInterval(() => {
+            const notRevealed = revealed.map((r, i) => r ? null : i).filter(i => i !== null);
+            if (notRevealed.length > 0) {
+                const randIndex = notRevealed[Math.floor(Math.random() * notRevealed.length)];
+                revealed[randIndex] = true;
+            }
+            
+            let displayStr = "";
+            for (let i = 0; i < password.length; i++) {
+                displayStr += revealed[i] ? password[i] : chars[Math.floor(Math.random() * chars.length)];
+            }
+            container.textContent = displayStr;
+            
+            if (revealed.every(v => v)) {
+                clearPasswordInterval();
+                setTimeout(() => showWeakPasswordMessage(password, lang), 500);
+            }
+        }, 100);
+    }
+
+    function handleStrongPassword(password, chars, container, lang) {
+        window.currentPasswordInterval = setInterval(() => {
+            let displayStr = "";
+            for (let i = 0; i < password.length; i++) {
+                displayStr += chars[Math.floor(Math.random() * chars.length)];
+            }
+            container.textContent = displayStr;
+        }, 50);
+        
+        setTimeout(() => {
+            clearPasswordInterval();
+            showStrongPasswordMessage(lang);
+            setTimeout(() => transitionToModule("module2", "module3"), 2000);
+        }, 1000);
+    }
+
+    function showWeakPasswordMessage(password, lang) {
+        const missing = [];
+        if (password.length < 10) missing.push(translations[lang].needsCharacters);
+        if (!/[0-9]/.test(password)) missing.push(translations[lang].needsNumber);
+        if (!/[^A-Za-z0-9]/.test(password)) missing.push(translations[lang].needsSymbol);
+        
+        const messageEl = document.createElement("div");
+        messageEl.id = "password-message";
+        messageEl.style.cssText = `margin-top: 10px; font-size: 20px; text-align: ${(lang === 'ar' || lang === 'ku') ? 'right' : 'left'};`;
+        messageEl.textContent = translations[lang].passwordWeak + missing.join(", ") + "!";
+        document.getElementById("password-tester").appendChild(messageEl);
+    }
+
+    function showStrongPasswordMessage(lang) {
+        const messageEl = document.createElement("div");
+        messageEl.id = "password-message";
+        messageEl.style.cssText = `margin-top: 10px; font-size: 20px; text-align: ${(lang === 'ar' || lang === 'ku') ? 'right' : 'left'};`;
+        messageEl.textContent = translations[lang].passwordStrong;
+        document.getElementById("password-tester").appendChild(messageEl);
+    }
+
+    function initializeWiFiGame() {
+        const wifiList = document.getElementById("wifi-list");
+        if (!wifiList) return;
+
+        let draggedItem = null;
         const wifiItems = document.querySelectorAll(".wifi-item");
+        
         wifiItems.forEach(item => {
             let longPressTimer;
             let isDragging = false;
@@ -393,112 +438,70 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    // Finish button
-    const finishBtn = document.getElementById("next-module-btn");
-    if (finishBtn) {
-        finishBtn.addEventListener("click", function(e) {
-            e.preventDefault();
-            
-            if (!wifiList) return;
-            
-            const items = Array.from(wifiList.querySelectorAll(".wifi-item"));
-            const currentOrder = items.map(item => parseInt(item.getAttribute("data-security")));
-            const correctOrder = [4, 3, 2, 1];
-            const isCorrect = currentOrder.every((val, index) => val === correctOrder[index]);
-            
-            if (isCorrect) {
-                document.getElementById("main-container").style.display = "none";
-                
-                const currentLang = localStorage.getItem('selectedLanguage') || 'en';
-                
-                // Create congratulations page
-                const congratsPage = document.createElement("div");
-                congratsPage.id = "congrats-page";
-                congratsPage.className = "fade-in";
-                congratsPage.style.cssText = `
-                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                    display: flex; justify-content: center; align-items: center;
-                    z-index: 2000; pointer-events: none;
-                `;
-                
-                congratsPage.innerHTML = `
-                    <div style="position: relative; text-align: center;">
-                        <h2 style="font-size:48px; color:#fff; position: relative; z-index:2;">
-                            ${translations[currentLang].congratulations}
-                        </h2>
-                    </div>
-                `;
-                
-                // Create brush container
-                const brushContainer = document.createElement("div");
-                brushContainer.style.cssText = `
-                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                    pointer-events: none; z-index: 1;
-                `;
-                
-                // Create overlapping spiral brushes
-                const brushes = [
-                    { src: 'FilesBaseLine/recource/ZN_Active_01-01.png', top: 'calc(50% - 120px)', left: 'calc(50% - 200px)', size: '80px', delay: '0s', zIndex: '3', rotation: '0deg' },
-                    { src: 'FilesBaseLine/recource/ZN_Active_01-02.png', top: 'calc(50% - 100px)', left: 'calc(50% - 160px)', size: '80px', delay: '0.3s', zIndex: '2', rotation: '120deg' },
-                    { src: 'FilesBaseLine/recource/ZN_Active_01-05.png', top: 'calc(50% - 80px)', left: 'calc(50% - 220px)', size: '80px', delay: '0.6s', zIndex: '1', rotation: '240deg' }
-                ];
-                
-                brushes.forEach((brush) => {
-                    const brushElement = document.createElement('img');
-                    brushElement.src = brush.src;
-                    brushElement.style.cssText = `
-                        position: absolute; top: ${brush.top}; left: ${brush.left};
-                        width: ${brush.size}; height: ${brush.size}; z-index: ${brush.zIndex};
-                        opacity: 0; transform: rotate(${brush.rotation});
-                        animation: popCircle 1.5s forwards ${brush.delay}, rotateClockwise 20s linear infinite ${brush.delay};
-                    `;
-                    brushContainer.appendChild(brushElement);
-                });
-                
-                document.body.appendChild(brushContainer);
-                document.body.appendChild(congratsPage);
-                
-            } else {
-                finishBtn.style.border = "2px solid red";
-                finishBtn.classList.add("shake");
-                setTimeout(() => {
-                    finishBtn.classList.remove("shake");
-                    finishBtn.style.border = "2px solid var(--primary-green)";
-                }, 500);
-            }
+    function showCongratulations() {
+        document.getElementById("main-container").style.display = "none";
+        
+        const currentLang = localStorage.getItem('selectedLanguage') || 'en';
+        
+        // Create congratulations page
+        const congratsPage = document.createElement("div");
+        congratsPage.id = "congrats-page";
+        congratsPage.className = "fade-in";
+        congratsPage.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; justify-content: center; align-items: center;
+            z-index: 2000; pointer-events: none;
+        `;
+        
+        congratsPage.innerHTML = `
+            <div style="position: relative; text-align: center;">
+                <h2 style="font-size:48px; color:#fff; position: relative; z-index:2;">
+                    ${translations[currentLang].congratulations}
+                </h2>
+            </div>
+        `;
+        
+        // Create brush container
+        const brushContainer = document.createElement("div");
+        brushContainer.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 1;
+        `;
+        
+        // Create overlapping spiral brushes
+        const brushes = [
+            { src: 'FilesBaseLine/recource/ZN_Active_01-01.png', top: 'calc(50% - 120px)', left: 'calc(50% - 200px)', size: '80px', delay: '0s', zIndex: '3', rotation: '0deg' },
+            { src: 'FilesBaseLine/recource/ZN_Active_01-02.png', top: 'calc(50% - 100px)', left: 'calc(50% - 160px)', size: '80px', delay: '0.3s', zIndex: '2', rotation: '120deg' },
+            { src: 'FilesBaseLine/recource/ZN_Active_01-05.png', top: 'calc(50% - 80px)', left: 'calc(50% - 220px)', size: '80px', delay: '0.6s', zIndex: '1', rotation: '240deg' }
+        ];
+        
+        brushes.forEach((brush) => {
+            const brushElement = document.createElement('img');
+            brushElement.src = brush.src;
+            brushElement.style.cssText = `
+                position: absolute; top: ${brush.top}; left: ${brush.left};
+                width: ${brush.size}; height: ${brush.size}; z-index: ${brush.zIndex};
+                opacity: 0; transform: rotate(${brush.rotation});
+                animation: popCircle 1.5s forwards ${brush.delay}, rotateClockwise 20s linear infinite ${brush.delay};
+            `;
+            brushContainer.appendChild(brushElement);
         });
+        
+        document.body.appendChild(brushContainer);
+        document.body.appendChild(congratsPage);
+    }
+
+    function showIncorrectFeedback(button) {
+        button.style.border = "2px solid red";
+        button.classList.add("shake");
+        setTimeout(() => {
+            button.classList.remove("shake");
+            button.style.border = "2px solid var(--primary-green)";
+        }, 500);
     }
 });
 
-                // Create circular brushes with heavy overlap starting from top-left corner
-                const brushes = [
-                    { src: 'FilesBaseLine/recource/ZN_Active_01-01.png', top: 'calc(50% - 120px)', left: 'calc(50% - 200px)', size: '80px', delay: '0s', zIndex: '3', rotation: '0deg' },
-                    { src: 'FilesBaseLine/recource/ZN_Active_01-02.png', top: 'calc(50% - 100px)', left: 'calc(50% - 160px)', size: '80px', delay: '0.3s', zIndex: '2', rotation: '120deg' },
-                    { src: 'FilesBaseLine/recource/ZN_Active_01-05.png', top: 'calc(50% - 80px)', left: 'calc(50% - 220px)', size: '80px', delay: '0.6s', zIndex: '1', rotation: '240deg' }
-                ];
-                
-                brushes.forEach((brush) => {
-                    const brushElement = document.createElement('img');
-                    brushElement.src = brush.src;
-                    brushElement.style.cssText = `
-                      position: absolute;
-                      top: ${brush.top};
-                      left: ${brush.left};
-                      width: ${brush.size};
-                      height: ${brush.size};
-                      z-index: ${brush.zIndex};
-                      opacity: 0;
-                      transform: rotate(${brush.rotation});
-                      animation: popCircle 1.5s forwards ${brush.delay}, rotateClockwise 20s linear infinite ${brush.delay};
-                    `;
-                    brushContainer.appendChild(brushElement);
-                });
-                
-                // Append both containers to body
-                document.body.appendChild(brushContainer);
-                document.body.appendChild(congratsPage);
-                
-         
+
 
 
 
